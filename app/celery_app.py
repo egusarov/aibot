@@ -9,11 +9,11 @@ celery_app = Celery(
     backend=REDIS_URL,
 )
 
-import app.tasks.news  # noqa
-
 celery_app.conf.update(
     task_track_started=True,
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
 )
+
+celery_app.autodiscover_tasks(["app.tasks"])

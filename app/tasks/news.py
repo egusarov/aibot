@@ -4,6 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(name="app.tasks.news.fetch_news")
+@celery_app.task
 def fetch_news():
-    logger.info("Fetching news...")
+    logger.warning("FETCH NEWS TASK WORKS")
