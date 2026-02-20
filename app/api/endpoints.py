@@ -1,24 +1,26 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.models import Source, Keyword
+from app.models.news import NewsItem
+
 from app.api.schemas import (
     SourceCreate, SourceOut,
-    KeywordCreate, KeywordOut
+    KeywordCreate, KeywordOut,
+    NewsOut,
 )
+
 from app.utils import get_db
 
 router = APIRouter()
 
 
-# -------- HEALTH --------
-
 @router.get("/health")
 def health():
     return {"status": "ok"}
 
-
-# -------- SOURCES --------
 
 @router.post("/sources/", response_model=SourceOut)
 def create_source(source: SourceCreate, db: Session = Depends(get_db)):
@@ -44,8 +46,6 @@ def delete_source(source_id: str, db: Session = Depends(get_db)):
     db.commit()
     return {"detail": "Source deleted"}
 
-
-# -------- KEYWORDS --------
 
 @router.post("/keywords/", response_model=KeywordOut)
 def create_keyword(keyword: KeywordCreate, db: Session = Depends(get_db)):
@@ -74,3 +74,23 @@ def delete_keyword(keyword_id: str, db: Session = Depends(get_db)):
     db.delete(keyword)
     db.commit()
     return {"detail": "Keyword deleted"}
+
+
+@router.get("/news/", response_model=list[NewsOut])
+def list_news(
+        source: str | None = None,
+        from_date: datetime | None = None,
+        limit: int = 20,
+        db: Session = Depends(get_db)
+):
+    query = db.query(NewsItem)
+
+    if source:
+        query = query.filter(NewsItem.source == source)
+
+    if from_date:
+        query = query.filter(NewsItem.created_at >= from_date)
+
+    query = query.order_by(NewsItem.created_at.desc()).limit(limit)
+
+    return query.all()

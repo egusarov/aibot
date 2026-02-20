@@ -1,9 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
-from uuid import UUID
+from datetime import datetime
 
-
-# -------- SOURCES --------
 
 class SourceBase(BaseModel):
     type: str
@@ -23,8 +20,6 @@ class SourceOut(SourceBase):
         from_attributes = True
 
 
-# -------- KEYWORDS --------
-
 class KeywordCreate(BaseModel):
     word: str
 
@@ -32,6 +27,19 @@ class KeywordCreate(BaseModel):
 class KeywordOut(BaseModel):
     id: str
     word: str
+
+    class Config:
+        from_attributes = True
+
+
+class NewsOut(BaseModel):
+    id: int
+    source: str
+    title: str
+    url: str
+    content: str | None
+    published_at: datetime | None
+    created_at: datetime
 
     class Config:
         from_attributes = True
